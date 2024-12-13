@@ -1,33 +1,44 @@
-version: "3"
+version: "3.8"  # You can update to version 3.8 for extra features (optional)
 services:
   react-app:
     build:
-       context: ./client
+      context: ./client
     stdin_open: true
-    ports: 
-      - "3000:3000"
+    ports:
+      - "3000:3000"  # Expose React app on port 3000
     networks:
       - mern-app
+    environment:
+      REACT_APP_API_URL: 'http://api-server:5000'  # Ensure React communicates with the backend
+    depends_on:
+      - api-server  # Ensure frontend waits for backend
+
   api-server:
     build:
-       context: ./server
+      context: ./server
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Expose API server on port 5000
     networks:
       - mern-app
     depends_on:
-      - mongo
+      - mongo  # Ensure API server waits for MongoDB
+    environment:
+      MONGO_URI: 'mongodb://mongo:27017/mydatabase'  # Ensure correct MongoDB connection string
+
   mongo:
-    image: mongo:3.6.19-xenial
+    image: mongo:5.0  # Update to a newer version of MongoDB
     ports:
-      - "27017:27017"
+      - "27017:27017"  # Expose MongoDB on port 27017
     networks:
       - mern-app
     volumes:
-      - mongo-data:/data/db
+      - mongo-data:/data/db  # Persistent volume for MongoDB data
+
 networks:
   mern-app:
-    driver: bridge
+    driver: bridge  # Create a bridge network for communication between services
+
 volumes:
   mongo-data:
-    driver: local
+    driver: local  # Persist MongoDB data
+
